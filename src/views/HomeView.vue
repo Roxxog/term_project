@@ -1,6 +1,18 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import BoxNode from '../components/BoxNode.vue'
+
+const nodes = ref<{ id: number }[]>([])
+
+function addNode() {
+  nodes.value.push({ id: nodes.value.length + 1 })
+}
+</script>
+
 <template>
   <main class="workspace" aria-label="학습 작업 공간">
-    <button class="add-node" type="button" disabled>노드 추가</button>
+    <button class="add-node" type="button" @click="addNode">노드 추가</button>
+    <BoxNode v-for="node in nodes" :key="node.id" />
   </main>
 </template>
 
