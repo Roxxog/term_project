@@ -16,10 +16,17 @@ function deleteNode(id: number) {
   nodes.value = nodes.value.filter((node) => node.id !== id)
   if (selectedNodeId.value === id) selectedNodeId.value = null
 }
+
+function finishEditingOnWorkspaceClick() {
+  for (const node of nodes.value) {
+    node.confirmTitle()
+  }
+  selectedNodeId.value = null
+}
 </script>
 
 <template>
-  <main class="workspace" aria-label="학습 작업 공간" @click.self="selectedNodeId = null">
+  <main class="workspace" aria-label="학습 작업 공간" @click.self="finishEditingOnWorkspaceClick">
     <button class="add-node" type="button" @click="addNode">노드 추가</button>
     <BoxNode
       v-for="node in nodes"
@@ -28,7 +35,8 @@ function deleteNode(id: number) {
       :selected="selectedNodeId === node.id"
       @select="selectedNodeId = node.id"
       @delete="deleteNode(node.id)"
-      @confirm-title="node.confirmTitle($event)"
+      @update:draft-title="node.draftTitle = $event"
+      @confirm-title="node.confirmTitle()"
       @change-color="node.setColor($event)"
       @change-title-color="node.setTitleColor($event)"
       @move="(x, y) => node.moveTo(x, y)"

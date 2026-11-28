@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { nodeColors, nodeTitleColors, type Node, type NodeColor, type NodeTitleColor } from '../models/Node'
 
 const props = defineProps<{ node: Node; selected: boolean }>()
 const emit = defineEmits<{
-  confirmTitle: [title: string]
+  'update:draftTitle': [title: string]
+  confirmTitle: []
   changeColor: [color: NodeColor]
   changeTitleColor: [color: NodeTitleColor]
   move: [x: number, y: number]
@@ -12,7 +13,10 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const draftTitle = ref(props.node.title)
+const draftTitle = computed({
+  get: () => props.node.draftTitle,
+  set: (title: string) => emit('update:draftTitle', title),
+})
 const titleInput = ref<HTMLInputElement | null>(null)
 const dragStart = ref<{ pointerId: number; offsetX: number; offsetY: number } | null>(null)
 const isDragging = ref(false)
@@ -72,7 +76,7 @@ function stopDrag(event: PointerEvent) {
     @pointercancel="stopDrag"
     @lostpointercapture="stopDrag"
   >
-    <form v-if="node.isEditingTitle" @submit.prevent="emit('confirmTitle', draftTitle)">
+    <form v-if="node.isEditingTitle" @submit.prevent="emit('confirmTitle')">
       <input
         ref="titleInput"
         v-model="draftTitle"

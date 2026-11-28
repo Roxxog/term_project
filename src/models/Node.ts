@@ -21,6 +21,7 @@ export type NodeTitleColor = (typeof nodeTitleColors)[number]['value']
 export class Node {
   readonly id: number
   title = ''
+  draftTitle = ''
   isEditingTitle = true
   x = 0
   y = 0
@@ -44,10 +45,11 @@ export class Node {
     this.titleColor = color
   }
 
-  confirmTitle(title: string) {
+  confirmTitle() {
     if (!this.isEditingTitle) return
 
-    this.title = title.trim()
+    this.title = this.draftTitle.trim()
+    this.draftTitle = ''
     this.isEditingTitle = false
   }
 }
