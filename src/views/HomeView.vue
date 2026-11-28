@@ -29,6 +29,8 @@ function deleteNode(id: number) {
       @select="selectedNodeId = node.id"
       @delete="deleteNode(node.id)"
       @confirm-title="node.confirmTitle($event)"
+      @change-color="node.setColor($event)"
+      @change-title-color="node.setTitleColor($event)"
       @move="(x, y) => node.moveTo(x, y)"
     />
   </main>
