@@ -21,6 +21,7 @@ export type NodeTitleColor = (typeof nodeTitleColors)[number]['value']
 export class Node {
   readonly id: number
   title = ''
+  description = ''
   draftTitle = ''
   isEditingTitle = true
   x = 0
@@ -43,6 +44,10 @@ export class Node {
 
   setTitleColor(color: NodeTitleColor) {
     this.titleColor = color
+  }
+
+  setDescription(description: string) {
+    this.description = description
   }
 
   startTitleEditing() {

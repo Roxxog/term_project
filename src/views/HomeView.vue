@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import BoxNode from '../components/BoxNode.vue'
 import { Node } from '../models/Node'
 
 const nodes = ref<Node[]>([])
 const selectedNodeId = ref<number | null>(null)
+const route = useRoute()
+const router = useRouter()
+const isNodeDetail = computed(() => route.name === 'node-detail')
+const activeNode = computed(() => nodes.value.find((node) => String(node.id) === route.params.nodeId))
 let nextNodeId = 1
 
 function addNode() {
@@ -23,10 +28,20 @@ function finishEditingOnWorkspaceClick() {
   }
   selectedNodeId.value = null
 }
+
+function openNode(node: Node) {
+  finishEditingOnWorkspaceClick()
+  void router.push({ name: 'node-detail', params: { nodeId: node.id } })
+}
 </script>
 
 <template>
-  <main class="workspace" aria-label="학습 작업 공간" @click.self="finishEditingOnWorkspaceClick">
+  <main
+    v-show="!isNodeDetail"
+    class="workspace"
+    aria-label="학습 작업 공간"
+    @click.self="finishEditingOnWorkspaceClick"
+  >
     <button class="add-node" type="button" @click="addNode">노드 추가</button>
     <BoxNode
       v-for="node in nodes"
@@ -34,6 +49,7 @@ function finishEditingOnWorkspaceClick() {
       :node="node"
       :selected="selectedNodeId === node.id"
       @select="selectedNodeId = node.id"
+      @open="openNode(node)"
       @delete="deleteNode(node.id)"
       @update:draft-title="node.draftTitle = $event"
       @edit-title="node.startTitleEditing()"
@@ -43,6 +59,9 @@ function finishEditingOnWorkspaceClick() {
       @move="(x, y) => node.moveTo(x, y)"
     />
   </main>
+  <RouterView v-slot="{ Component }">
+    <component :is="Component" v-if="Component" :node="activeNode" />
+  </RouterView>
 </template>
 
 <style scoped>

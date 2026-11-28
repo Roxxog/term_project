@@ -11,6 +11,7 @@ const emit = defineEmits<{
   changeTitleColor: [color: NodeTitleColor]
   move: [x: number, y: number]
   select: []
+  open: []
   delete: []
 }>()
 
@@ -71,13 +72,14 @@ function stopDrag(event: PointerEvent) {
     tabindex="0"
     :aria-label="node.title || '제목 없는 노드'"
     @keydown.enter.self.prevent="emit('select')"
+    @dblclick="emit('open')"
     @pointerdown="startDrag"
     @pointermove="drag"
     @pointerup="stopDrag"
     @pointercancel="stopDrag"
     @lostpointercapture="stopDrag"
   >
-    <form v-if="node.isEditingTitle" @submit.prevent="emit('confirmTitle')">
+    <form v-if="node.isEditingTitle" @dblclick.stop @submit.prevent="emit('confirmTitle')">
       <input
         ref="titleInput"
         v-model="draftTitle"
@@ -89,7 +91,7 @@ function stopDrag(event: PointerEvent) {
       />
     </form>
     <span v-else :style="{ color: node.titleColor }">{{ node.title }}</span>
-    <div v-if="selected" class="node-actions" @pointerdown.stop>
+    <div v-if="selected" class="node-actions" @pointerdown.stop @dblclick.stop>
       <details class="color-picker">
         <summary>
           <span class="current-color" :style="{ backgroundColor: node.color }" aria-hidden="true"></span>
