@@ -4,19 +4,30 @@ import BoxNode from '../components/BoxNode.vue'
 import { Node } from '../models/Node'
 
 const nodes = ref<Node[]>([])
+const selectedNodeId = ref<number | null>(null)
+let nextNodeId = 1
 
 function addNode() {
-  nodes.value.push(new Node(nodes.value.length + 1))
+  selectedNodeId.value = null
+  nodes.value.push(new Node(nextNodeId++))
+}
+
+function deleteNode(id: number) {
+  nodes.value = nodes.value.filter((node) => node.id !== id)
+  if (selectedNodeId.value === id) selectedNodeId.value = null
 }
 </script>
 
 <template>
-  <main class="workspace" aria-label="학습 작업 공간">
+  <main class="workspace" aria-label="학습 작업 공간" @click.self="selectedNodeId = null">
     <button class="add-node" type="button" @click="addNode">노드 추가</button>
     <BoxNode
       v-for="node in nodes"
       :key="node.id"
       :node="node"
+      :selected="selectedNodeId === node.id"
+      @select="selectedNodeId = node.id"
+      @delete="deleteNode(node.id)"
       @confirm-title="node.confirmTitle($event)"
       @move="(x, y) => node.moveTo(x, y)"
     />
