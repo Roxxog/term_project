@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { nodeColors, nodeTitleColors, type Node, type NodeColor, type NodeTitleColor } from '../models/Node'
 
-const props = defineProps<{ node: Node; selected: boolean }>()
+const props = defineProps<{ node: Node; selected: boolean; zoom: number }>()
 const emit = defineEmits<{
   'update:draftTitle': [title: string]
   editTitle: []
@@ -34,8 +34,8 @@ function startDrag(event: PointerEvent) {
   event.currentTarget.setPointerCapture(event.pointerId)
   dragStart.value = {
     pointerId: event.pointerId,
-    offsetX: event.clientX - props.node.x,
-    offsetY: event.clientY - props.node.y,
+    offsetX: event.clientX - props.node.x * props.zoom,
+    offsetY: event.clientY - props.node.y * props.zoom,
   }
 }
 
@@ -43,9 +43,9 @@ function drag(event: PointerEvent) {
   const start = dragStart.value
   if (!start || start.pointerId !== event.pointerId) return
 
-  const x = event.clientX - start.offsetX
-  const y = event.clientY - start.offsetY
-  if (!isDragging.value && Math.hypot(x - props.node.x, y - props.node.y) < 4) return
+  const x = (event.clientX - start.offsetX) / props.zoom
+  const y = (event.clientY - start.offsetY) / props.zoom
+  if (!isDragging.value && Math.hypot(x - props.node.x, y - props.node.y) * props.zoom < 4) return
 
   isDragging.value = true
   emit('move', x, y)
@@ -65,8 +65,8 @@ function stopDrag(event: PointerEvent) {
     class="box-node"
     :class="{ 'box-node--dragging': isDragging, 'box-node--selected': selected }"
     :style="{
-      left: `calc(50% + ${node.x}px)`,
-      top: `calc(50% + ${node.y}px)`,
+      left: `${node.x}px`,
+      top: `${node.y}px`,
       backgroundColor: node.color,
     }"
     tabindex="0"
@@ -149,7 +149,8 @@ function stopDrag(event: PointerEvent) {
 
 <style scoped>
 .box-node {
-  position: fixed;
+  position: absolute;
+  pointer-events: auto;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
