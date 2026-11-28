@@ -56,19 +56,15 @@ function stopPan(event: PointerEvent) {
   isPanning.value = false
 }
 
-function zoomAtPointer(event: WheelEvent) {
+function zoomAtCenter(event: WheelEvent) {
   if (!workspace.value || event.buttons !== 0) return
 
-  const bounds = workspace.value.getBoundingClientRect()
-  const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? bounds.height : 1
+  const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? workspace.value.clientHeight : 1
   const requestedZoom = zoom.value * Math.exp(-event.deltaY * unit * 0.0015)
   const nextZoom = Math.min(3, Math.max(Math.min(0.15, zoom.value), requestedZoom))
   const ratio = nextZoom / zoom.value
-  const x = event.clientX - bounds.left - bounds.width / 2
-  const y = event.clientY - bounds.top - bounds.height / 2
-
-  viewX.value = x - (x - viewX.value) * ratio
-  viewY.value = y - (y - viewY.value) * ratio
+  viewX.value *= ratio
+  viewY.value *= ratio
   zoom.value = nextZoom
 }
 
@@ -124,7 +120,7 @@ function openNode(node: Node) {
     @pointerup="stopPan"
     @pointercancel="stopPan"
     @lostpointercapture="stopPan"
-    @wheel.prevent="zoomAtPointer"
+    @wheel.prevent="zoomAtCenter"
   >
     <div class="workspace-tools">
       <button type="button" @click="addNode">노드 추가</button>
