@@ -36,6 +36,7 @@ function finishEditingOnWorkspaceClick() {
       @select="selectedNodeId = node.id"
       @delete="deleteNode(node.id)"
       @update:draft-title="node.draftTitle = $event"
+      @edit-title="node.startTitleEditing()"
       @confirm-title="node.confirmTitle()"
       @change-color="node.setColor($event)"
       @change-title-color="node.setTitleColor($event)"

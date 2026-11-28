@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { nodeColors, nodeTitleColors, type Node, type NodeColor, type NodeTitleColor } from '../models/Node'
 
 const props = defineProps<{ node: Node; selected: boolean }>()
 const emit = defineEmits<{
   'update:draftTitle': [title: string]
+  editTitle: []
   confirmTitle: []
   changeColor: [color: NodeColor]
   changeTitleColor: [color: NodeTitleColor]
@@ -21,7 +22,7 @@ const titleInput = ref<HTMLInputElement | null>(null)
 const dragStart = ref<{ pointerId: number; offsetX: number; offsetY: number } | null>(null)
 const isDragging = ref(false)
 
-onMounted(() => titleInput.value?.focus())
+watch(titleInput, (input) => input?.focus(), { flush: 'post' })
 
 function startDrag(event: PointerEvent) {
   if (event.button !== 0 || dragStart.value) return
@@ -136,6 +137,9 @@ function stopDrag(event: PointerEvent) {
           </div>
         </div>
       </details>
+      <button type="button" :disabled="node.isEditingTitle" @click="emit('editTitle')">
+        제목 변경
+      </button>
       <button type="button" aria-label="노드 삭제" @click="emit('delete')">삭제</button>
     </div>
   </div>
@@ -197,6 +201,11 @@ function stopDrag(event: PointerEvent) {
   align-items: center;
   gap: 0.35rem;
   list-style: none;
+}
+
+.node-actions > button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .color-picker summary::-webkit-details-marker {

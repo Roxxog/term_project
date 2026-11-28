@@ -45,6 +45,13 @@ export class Node {
     this.titleColor = color
   }
 
+  startTitleEditing() {
+    if (this.isEditingTitle) return
+
+    this.draftTitle = this.title
+    this.isEditingTitle = true
+  }
+
   confirmTitle() {
     if (!this.isEditingTitle) return
 
